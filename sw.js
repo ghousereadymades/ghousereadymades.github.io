@@ -1,5 +1,5 @@
 /* Offline support: network first (so updates show immediately), cache fallback */
-var CACHE = "ghouse-v13";
+var CACHE = "ghouse-v14";
 var CORE = ["./", "index.html", "css/style.css", "js/config.js", "js/products.js", "js/i18n.js", "js/art.js", "js/app.js", "favicon.svg", "manifest.webmanifest", "images/price-list.jpg", "images/icon-192.png"];
 
 self.addEventListener("install", function (e) {

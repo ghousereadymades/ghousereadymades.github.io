@@ -172,7 +172,7 @@ function thumb(p, size) {
     return '<img src="' + esc(p.images[0]) + '" alt="' + esc(p.en + " – " + p.ta + " – " + S.name.en) + '" width="' + size + '" height="' + size + '" loading="lazy">';
   return W.productArt(p).replace("<svg ", '<svg width="' + size + '" height="' + size + '" ');
 }
-function priceText(p) { const pr = priceOf(p); return pr == null ? "Ask price on WhatsApp" : money(pr) + (offerOn() && p.onOffer !== false ? " (offer price)" : ""); }
+function priceText(p) { const pr = priceOf(p); return pr == null ? "Price on WhatsApp · விலை WhatsApp-ல்" : money(pr) + (offerOn() && p.onOffer !== false ? " (offer price)" : ""); }
 function productList(list) {
   return '<ul class="seo-list">' + list.map((p) =>
     '<li><a href="' + productPath(p) + '">' + thumb(p, 96) + "<span><b>" + esc(p.en) + "</b> · " + esc(p.ta) + "<br>" + esc(priceText(p)) + "</span></a></li>").join("") + "</ul>";

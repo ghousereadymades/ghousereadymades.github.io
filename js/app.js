@@ -18,7 +18,7 @@
     return p.regularPrice > 0 ? p.regularPrice : null;
   }
   function wasOf(p) { var pr = priceOf(p); return pr != null && p.regularPrice > pr ? p.regularPrice : null; }
-  function buyable(p) { return p.inStock && priceOf(p) != null; }
+  function buyable(p) { return p.inStock; }
 
   /* ---------- helpers ---------- */
   var $ = function (s, r) { return (r || document).querySelector(s); };
@@ -57,7 +57,7 @@
   function offerKey(k) { return offerOn() ? k : k + "Off"; }
   function priceHtml(p, big) {
     var pr = priceOf(p), was = wasOf(p);
-    if (pr == null) return '<span class="price price--ask">' + t("p.askPrice") + '</span>';
+    if (pr == null) return '<span class="price price--ask">' + t("p.priceWa") + '</span>';
     return big ? (was ? '<s>' + money(was) + '</s>' : "") + '<b>' + money(pr) + '</b>'
                : '<span class="price">' + (was ? '<s>' + money(was) + '</s>' : "") + money(pr) + '</span>';
   }
@@ -111,6 +111,8 @@
   }
   function count() { return state.cart.reduce(function (a, l) { return a + l.qty; }, 0); }
   function subtotal() { return state.cart.reduce(function (a, l) { return a + l.qty * (priceOf(byId[l.id]) || 0); }, 0); }
+  function unpriced() { return state.cart.reduce(function (a, l) { return a + (priceOf(byId[l.id]) == null ? l.qty : 0); }, 0); }
+  function moneyOr(v) { return v == null || isNaN(v) ? t("p.priceTbc") : money(v); }
   function shippingFor(method) { return count() && method !== "pickup" ? S.shipping.fee : 0; }
   function perItem(n, sub) { return Math.round((sub + S.shipping.fee) / n); }
   function bump() {
@@ -179,9 +181,8 @@
       '<a class="card__name" href="#/p/' + p.id + '">' + esc(pname(p)) + '</a>' +
       '<div class="card__alt">' + esc(altName(p)) + '</div>' +
       '<div class="card__row">' +
-      (priceOf(p) == null && p.inStock ? "" : priceHtml(p)) +
+      priceHtml(p) +
       (buyable(p) ? '<button class="btn-add" type="button" data-quick="' + p.id + '"><b>+</b> ' + t("card.add") + '</button>'
-        : p.inStock ? '<a class="btn-add btn-add--wa" target="_blank" rel="noopener" href="' + waLink(t("wa.enquiry", { name: pname(p) + " [" + p.code + "]", price: "?" }) + "\n" + productUrl(p)) + '">' + t("p.askPrice") + '</a>'
         : '<span class="muted small">' + t("card.soldout") + '</span>') +
       '</div></div></article>';
   }
@@ -217,12 +218,22 @@
   }
   function pickerValid(scope, root) {
     var pk = pickers[scope], p = byId[pk.id], ok = true;
+    var first = null;
     p.options.forEach(function (o) {
       var g = $('[data-optgroup="' + o.key + '"]', root);
       var missing = !pk.sel[o.key];
-      if (g) { $(".opt__err", g).hidden = !missing; g.classList.toggle("shake", missing); }
-      if (missing) ok = false;
+      if (g) {
+        $(".opt__err", g).hidden = !missing;
+        g.classList.remove("shake"); g.classList.toggle("opt--missing", missing);
+        if (missing) { void g.offsetWidth; g.classList.add("shake"); }
+      }
+      if (missing && !first) first = [o, g];
     });
+    if (first) {
+      toast("⚠️ " + t("p.choose", { opt: optLabel(first[0].key) }));
+      if (first[1]) first[1].scrollIntoView({ behavior: "smooth", block: "center" });
+      ok = false;
+    }
     return ok;
   }
   function pickerCommit(scope, root) {
@@ -362,7 +373,7 @@
     var related = PRODUCTS.filter(function (x) { return x.cat === p.cat && x.id !== p.id; })
       .concat(PRODUCTS.filter(function (x) { return x.cat !== p.cat; })).slice(0, 4);
     var recent = state.recent.filter(function (id) { return id !== p.id && byId[id]; }).slice(0, 4).map(function (id) { return byId[id]; });
-    var enquiry = t("wa.enquiry", { name: pname(p) + " [" + p.code + "]", price: priceOf(p) == null ? "?" : priceOf(p) }) + "\n" + productUrl(p);
+    var enquiry = (priceOf(p) == null ? t("wa.enquiryNoPrice", { name: pname(p) + " [" + p.code + "]" }) : t("wa.enquiry", { name: pname(p) + " [" + p.code + "]", price: priceOf(p) })) + "\n" + productUrl(p);
 
     return '<nav class="crumbs"><a href="#/">' + t("nav.home") + '</a> / <a href="#/shop?cat=' + p.cat + '">' + esc(loc(cat)) + '</a> / <span>' + esc(pname(p)) + '</span></nav>' +
       '<section class="pdp" style="--h:' + p.tint + '">' +
@@ -386,7 +397,7 @@
           '<ul class="assure"><li>🚚 ' + t("p.shipNote") + '</li><li>💳 ' + t("p.payNote") + '</li><li>🏬 ' + t("p.shopNote") + '</li></ul>' +
         '</div>' +
       '</section>' +
-      (buyable(p) ? '<div class="pdp-sticky" id="pdpSticky"><div><b>' + money(priceOf(p)) + '</b><small>' + esc(pname(p)) + '</small></div><button class="btn btn--primary" type="button" data-sticky-add>' + t("p.addToCart") + '</button></div>' : "") +
+      (buyable(p) ? '<div class="pdp-sticky" id="pdpSticky"><div><b>' + moneyOr(priceOf(p)) + '</b><small>' + esc(pname(p)) + '</small></div><button class="btn btn--primary" type="button" data-sticky-add>' + t("p.addToCart") + '</button></div>' : "") +
       '<section class="section"><div class="sec-head"><h2>' + t("p.related") + '</h2></div>' + grid(related) + '</section>' +
       (recent.length ? '<section class="section"><div class="sec-head"><h2>' + t("p.recent") + '</h2></div>' + grid(recent) + '</section>' : "");
   };
@@ -399,7 +410,7 @@
         '<div class="line__info"><a href="#/p/' + p.id + '" class="line__name">' + esc(pname(p)) + '</a>' +
           '<div class="muted small">' + esc(optsText(l.opts)) + '</div>' +
           '<div class="line__row"><div class="stepper stepper--sm"><button type="button" data-line="' + esc(l.key) + '" data-d="-1" aria-label="-">−</button><output>' + l.qty + '</output><button type="button" data-line="' + esc(l.key) + '" data-d="1" aria-label="+">+</button></div>' +
-          '<b>' + money(l.qty * priceOf(p)) + '</b></div>' +
+          '<b>' + moneyOr(priceOf(p) == null ? null : l.qty * priceOf(p)) + '</b></div>' +
           (compact ? "" : '<button class="link small" type="button" data-remove="' + esc(l.key) + '">' + t("cart.remove") + '</button>') +
         '</div></div>';
     }).join("");
@@ -409,8 +420,9 @@
     return '<div class="totals">' +
       '<div><span>' + t("cart.subtotal") + ' (' + t("cart.items", { n: n }) + ')</span><span>' + money(sub) + '</span></div>' +
       '<div><span>' + t("cart.shipping") + (method === "pickup" ? "" : ' <small class="muted">' + S.shipping.courier + '</small>') + '</span><span>' + (ship ? money(ship) : t("free")) + '</span></div>' +
-      '<div class="totals__grand"><span>' + t("cart.total") + '</span><span>' + money(sub + ship) + '</span></div>' +
-      (n > 1 && method !== "pickup" ? '<p class="per-item">🎉 ' + t("cart.perItem", { v: perItem(n, sub) }) + '</p>' : "") +
+      '<div class="totals__grand"><span>' + t("cart.total") + '</span><span>' + money(sub + ship) + (unpriced() ? " +" : "") + '</span></div>' +
+      (unpriced() ? '<p class="per-item">💬 ' + t("cart.tbcNote", { n: unpriced() }) + '</p>'
+        : n > 1 && method !== "pickup" ? '<p class="per-item">🎉 ' + t("cart.perItem", { v: perItem(n, sub) }) + '</p>' : "") +
       '</div>';
   }
   function emptyCart() {
@@ -421,7 +433,7 @@
     var list = PRODUCTS.filter(function (p) { return buyable(p) && inCart.indexOf(p.id) < 0; }).slice(0, limit);
     if (!list.length) return "";
     return '<div class="upsell"><h4>➕ ' + t("cart.upsell") + '</h4><div class="upsell__row">' + list.map(function (p) {
-      return '<button type="button" class="mini" data-quick="' + p.id + '" style="--h:' + p.tint + '">' + media(p) + '<span>' + esc(pname(p)) + '</span><b>+ ' + money(priceOf(p)) + '</b></button>';
+      return '<button type="button" class="mini" data-quick="' + p.id + '" style="--h:' + p.tint + '">' + media(p) + '<span>' + esc(pname(p)) + '</span><b>+ ' + (priceOf(p) == null ? t("card.add") : money(priceOf(p))) + '</b></button>';
     }).join("") + '</div></div>';
   }
 
@@ -504,7 +516,7 @@
         '<div class="summary"><h3>' + t("co.summary") + '</h3>' +
           '<div class="mini-lines">' + state.cart.map(function (l) {
             var p = byId[l.id];
-            return '<div class="mline" style="--h:' + p.tint + '"><span class="mline__img">' + media(p) + '<i>' + l.qty + '</i></span><span><b>' + esc(pname(p)) + '</b><small>' + esc(optsText(l.opts)) + '</small></span><b>' + money(l.qty * priceOf(p)) + '</b></div>';
+            return '<div class="mline" style="--h:' + p.tint + '"><span class="mline__img">' + media(p) + '<i>' + l.qty + '</i></span><span><b>' + esc(pname(p)) + '</b><small>' + esc(optsText(l.opts)) + '</small></span><b>' + moneyOr(priceOf(p) == null ? null : l.qty * priceOf(p)) + '</b></div>';
           }).join("") + '</div>' +
           '<div id="coTotals">' + totalsHtml(co.method) + '</div>' +
           '<a href="#/cart" class="link small">✎ ' + t("cart.view") + '</a>' +
@@ -585,7 +597,7 @@
     var sub = subtotal(), ship = shippingFor(d.method);
     return {
       id: id || newOrderId(), ts: Date.now(), lang: state.lang, items: items,
-      count: count(), subtotal: sub, shipping: ship, total: sub + ship,
+      count: count(), unpriced: unpriced(), subtotal: sub, shipping: ship, total: sub + ship,
       customer: { name: d.name, phone: cleanPhone(d.phone) || d.phone, alt: d.alt, address: d.address, town: d.town, district: d.district, pincode: d.pincode, landmark: d.landmark },
       method: d.method, payment: d.payment, notes: d.notes
     };
@@ -606,12 +618,13 @@
       m.push((i + 1) + ". " + (it[L] || it.en) + " [" + it.code + "]");
       var ot = optsText(it.opts, L);
       if (ot) m.push("    " + ot);
-      m.push("    " + it.qty + " × " + money(it.price) + (it.was ? " (" + T("offer.badge") + ", " + T("p.regular") + " " + money(it.was) + ")" : "") + " = " + money(it.qty * it.price));
+      m.push("    " + it.qty + " × " + (it.price == null ? T("msg.tbc") : money(it.price) + (it.was ? " (" + T("offer.badge") + ", " + T("p.regular") + " " + money(it.was) + ")" : "") + " = " + money(it.qty * it.price)));
     });
     m.push(line);
     m.push(T("msg.subtotal") + " (" + T("cart.items", { n: o.count }) + "): " + money(o.subtotal));
     m.push(T("msg.shipping") + (o.method === "pickup" ? "" : " (" + S.shipping.courier + ")") + ": " + (o.shipping ? money(o.shipping) : T("msg.free")));
-    m.push("*" + T("msg.total") + ": " + money(o.total) + "*");
+    m.push("*" + T("msg.total") + ": " + money(o.total) + (o.unpriced ? " +" : "") + "*");
+    if (o.unpriced) m.push("💬 " + T("msg.tbcNote", { n: o.unpriced }));
     m.push(line);
     var c = o.customer;
     m.push(T("msg.customer"));
@@ -683,7 +696,7 @@
       (list.length ? '<div class="orders">' + list.map(function (o) {
         return '<article class="order"><div class="order__head"><b>' + o.id + '</b><span class="muted small">' + fmtDate(o.ts) + '</span></div>' +
           '<div class="order__items">' + o.items.map(function (it) { return '<span>' + esc(it[state.lang] || it.en) + ' × ' + it.qty + '</span>'; }).join("") + '</div>' +
-          '<div class="order__foot"><b>' + money(o.total) + '</b><div>' +
+          '<div class="order__foot"><b>' + money(o.total) + (o.unpriced ? " +" : "") + '</b><div>' +
           '<a class="btn btn--wa-ghost small" target="_blank" rel="noopener" href="' + waLink(orderMessage(o)) + '">' + waIcon + t("orders.resend") + '</a>' +
           '<button class="btn btn--ghost small" type="button" data-reorder="' + o.id + '">↻ ' + t("orders.reorder") + '</button></div></div></article>';
       }).join("") + '</div>' : '<div class="empty"><div class="empty__bag">🧾</div><p>' + t("orders.empty") + '</p><a class="btn btn--primary" href="#/shop">' + t("hero.cta") + '</a></div>') +
@@ -721,7 +734,7 @@
       '<button class="x" type="button" data-close-sheet aria-label="Close">×</button>' +
       '<div class="sheet__head" style="--h:' + p.tint + '"><span class="sheet__img">' + media(p) + '</span><div><b>' + esc(pname(p)) + '</b><small>' + esc(altName(p)) + '</small>' + priceHtml(p) + '</div></div>' +
       '<div class="sheet__body">' + pickerHtml("sheet", p) + '</div>' +
-      '<div class="sheet__foot"><button class="btn btn--primary btn--lg btn--block" type="button" id="sheetAdd">' + t("p.addToCart") + ' · ' + money(priceOf(p)) + '</button>' +
+      '<div class="sheet__foot"><button class="btn btn--primary btn--lg btn--block" type="button" id="sheetAdd">' + t("p.addToCart") + (priceOf(p) == null ? "" : ' · ' + money(priceOf(p))) + '</button>' +
       '<a class="link small" href="#/p/' + p.id + '" data-close-sheet>' + (state.lang === "ta" ? "முழு விவரம் பார்க்க →" : "See full details →") + '</a></div>';
     var sh = $("#sheet");
     sh.classList.add("open"); sh.setAttribute("aria-hidden", "false");
@@ -735,7 +748,7 @@
   }
   function updateSheetPrice() {
     var pk = pickers.sheet, b = $("#sheetAdd");
-    if (pk && b) b.textContent = t("p.addToCart") + " · " + money(pk.qty * priceOf(byId[pk.id]));
+    if (pk && b) b.textContent = t("p.addToCart") + (priceOf(byId[pk.id]) == null ? "" : " · " + money(pk.qty * priceOf(byId[pk.id])));
   }
 
   /* ---------- drawer ---------- */
@@ -831,7 +844,7 @@
       pk.sel[el.dataset.opt] = el.dataset.val;
       $$('[data-scope="' + el.dataset.scope + '"][data-opt="' + el.dataset.opt + '"]').forEach(function (b) { b.classList.toggle("on", b === el); });
       if (el.dataset.opt === "color") { var cn = $('[data-colorname="' + el.dataset.scope + '"]'); if (cn) cn.textContent = loc(colorById(el.dataset.val)); }
-      var grp = el.closest("[data-optgroup]"); if (grp) { $(".opt__err", grp).hidden = true; grp.classList.remove("shake"); }
+      var grp = el.closest("[data-optgroup]"); if (grp) { $(".opt__err", grp).hidden = true; grp.classList.remove("shake", "opt--missing"); }
       return;
     }
     if ((el = e.target.closest("[data-step]"))) {
@@ -848,15 +861,14 @@
     }
     if ((el = e.target.closest("[data-remove]"))) { setQty(el.dataset.remove, 0); render(); return; }
     if (e.target.closest("#addBtn") || e.target.closest("[data-sticky-add]")) {
-      if (pickerCommit("page", $("#pdpInfo"))) toast(t("cart.added"), { href: "#/checkout", label: t("cart.checkout") + " →" });
-      else $("#pdpInfo .opt").scrollIntoView({ behavior: "smooth", block: "center" });
+      if (pickerCommit("page", $("#pdpInfo"))) toast("✓ " + t("cart.added"), { href: "#/checkout", label: t("cart.checkout") + " →" });
       return;
     }
     if (e.target.closest("#buyBtn")) { if (pickerCommit("page", $("#pdpInfo"))) location.hash = "#/checkout"; return; }
     if (e.target.closest("#sheetAdd")) {
       if (pickerCommit("sheet", $("#sheetPanel"))) {
         closeSheet();
-        toast(t("cart.added"), { href: "#/checkout", label: t("cart.checkout") + " →" });
+        toast("✓ " + t("cart.added"), { href: "#/checkout", label: t("cart.checkout") + " →" });
         if (currentRoute === "cart") render();
       }
       return;
@@ -907,7 +919,7 @@
     }
   }
   function share(p) {
-    var url = productUrl(p), text = t("share.text", { name: pname(p), price: priceOf(p) || "?" });
+    var url = productUrl(p), text = priceOf(p) == null ? t("share.textNoPrice", { name: pname(p) }) : t("share.text", { name: pname(p), price: priceOf(p) });
     if (navigator.share) navigator.share({ title: pname(p), text: text, url: url }).catch(function () {});
     else window.open("https://wa.me/?text=" + encodeURIComponent(text + "\n" + url), "_blank");
   }

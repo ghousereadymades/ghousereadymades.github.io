@@ -204,6 +204,13 @@ window.I18N = {
     "p.askPriceWa": "Ask price on WhatsApp",
     "group.title": "Get offer alerts on WhatsApp", "group.sub": "Join our WhatsApp group — new arrivals and offer prices first.", "group.btn": "Join WhatsApp group", "group.short": "WhatsApp group",
     "footer.credit": "Designed by",
+    "p.priceWa": "Price on WhatsApp",
+    "p.priceTbc": "Price on WhatsApp",
+    "cart.tbcNote": "Price of {n} item(s) will be confirmed on WhatsApp",
+    "msg.tbc": "price to be confirmed",
+    "msg.tbcNote": "Please confirm the price of {n} item(s)",
+    "share.textNoPrice": "Check out {name} at Ghouse Readymades!",
+    "wa.enquiryNoPrice": "Hi! I'm interested in *{name}*. What is the price?",
     "free": "Free"
   },
 
@@ -411,6 +418,13 @@ window.I18N = {
     "p.askPriceWa": "WhatsApp-ல் விலை கேளுங்கள்",
     "group.title": "ஆஃபர் தகவல்களை WhatsApp-ல் பெறுங்கள்", "group.sub": "எங்கள் WhatsApp குழுவில் சேருங்கள் — புதிய வரவுகள், ஆஃபர் விலைகள் முதலில் உங்களுக்கு.", "group.btn": "WhatsApp குழுவில் சேர", "group.short": "WhatsApp குழு",
     "footer.credit": "வடிவமைப்பு:",
+    "p.priceWa": "விலை WhatsApp-ல்",
+    "p.priceTbc": "விலை WhatsApp-ல்",
+    "cart.tbcNote": "{n} பொருளின் விலை WhatsApp-ல் உறுதி செய்யப்படும்",
+    "msg.tbc": "விலை உறுதி செய்யவும்",
+    "msg.tbcNote": "{n} பொருளின் விலையை உறுதி செய்யவும்",
+    "share.textNoPrice": "கவுஸ் ரெடிமேட்ஸில் {name} பாருங்கள்!",
+    "wa.enquiryNoPrice": "எனக்கு *{name}* வேண்டும். விலை என்ன?",
     "free": "இலவசம்"
   }
 };

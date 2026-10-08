@@ -190,7 +190,9 @@ main { max-width: var(--wrap); margin: 0 auto; padding: 0 16px 40px; min-height:
 .card:hover .card__media svg, .card:hover .card__media img { transform: scale(1.05); }
 .card__tag { position: absolute; left: 10px; top: 10px; background: rgba(255, 255, 255, .92); color: hsl(var(--h), 55%, 30%); font-weight: 700; font-size: .72rem; padding: 3px 10px; border-radius: 999px; }
 .card__offer { position: absolute; left: 10px; bottom: 10px; background: var(--rose); color: #fff; font-weight: 800; font-size: .72rem; letter-spacing: .04em; padding: 3px 10px; border-radius: 999px; box-shadow: 0 4px 10px -4px rgba(215, 25, 74, .8); }
-.price--ask { font-size: .95rem; color: var(--wa-d); }
+.price.price--ask, .pdp__price .price--ask { font-family: var(--body); font-size: .9rem; font-weight: 700; line-height: 1.2; color: var(--wa-d); }
+.pdp__price .price--ask { font-size: 1.15rem; }
+.opt--missing .chips { outline: 2px solid var(--rose); outline-offset: 4px; border-radius: 12px; }
 .btn-add--wa { background: var(--wa); color: #06351f; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; width: 100%; }
 .btn-add--wa:hover { background: #1fc15b; }
 .card__out { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(255, 255, 255, .7); font-weight: 800; color: var(--muted); }

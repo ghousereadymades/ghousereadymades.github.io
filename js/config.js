@@ -33,7 +33,7 @@ window.STORE = {
   //             The offer switches off by itself after this day.
   //             Leave "" to run until you set active: false.
   offer: {
-    active: true,
+    active: false,
     price: 100,
     endsOn: ""
   },

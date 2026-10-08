@@ -40,7 +40,7 @@ window.CATEGORIES = [
         en: "Stitched readymade jacket (blouse) — no tailor waiting. Comfortable daily-wear fit that goes with any saree.",
         ta: "தைத்து தயாரான ரெடிமேட் ஜாக்கெட் — டெய்லருக்கு காத்திருக்க வேண்டாம். எந்த சேலைக்கும் பொருந்தும் தினசரி அணியும் ஃபிட்."
       },
-      images: ["images/products/readymade-jacket-1.jpg", "images/products/readymade-jacket-2.jpg"],
+      images: ["images/products/readymade-jacket-1.jpg"],
       regularPrice: null, onOffer: true, inStock: true, colors: true,
       options: [{ key: "size", values: blouseSizes }],
       keywords: "blouse readymade jacket saree"
@@ -278,7 +278,7 @@ window.CATEGORIES = [
         en: "Printed bedsheets for every bed — elastic fitted sheets that stay in place, and regular flat sheets. Single, double and king size.",
         ta: "எல்லா கட்டிலுக்கும் பிரிண்டட் பெட்ஷீட் — நழுவாத எலாஸ்டிக் ஃபிட்டட் ஷீட் மற்றும் சாதாரண ஷீட். சிங்கிள், டபுள், கிங் சைஸ்."
       },
-      images: ["images/products/bedsheet-1.jpg", "images/products/bedsheet-2.jpg"],
+      images: ["images/products/bedsheet-1.jpg"],
       regularPrice: null, onOffer: false, inStock: true, colors: true,
       options: [{ key: "type", values: ["Elastic Fitted", "Flat"] }, { key: "size", values: ["Single", "Double", "King"] }],
       keywords: "bedsheet bed sheet fitted elastic king double single cover"

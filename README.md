@@ -1,7 +1,7 @@
 # Ghouse Readymades · கவுஸ் ரெடிமேட்ஸ்
 
 The online shop for **Ghouse Readymades**, Chidambaram Main Road, Lalpet – 608 303.
-Each product has a regular price, and during an offer period the readymades on the price list sell at the offer price (₹100). Nighties, lungis and bedsheets always sell at their own prices (`onOffer: false`). Shipping is a flat ₹50 per order anywhere in Tamil Nadu, by ST Courier.
+Each product has its own price. Products without a price yet can still be ordered, and the price is confirmed on WhatsApp. An optional offer price (for example ₹100) can be switched on in `js/config.js`; it is currently off. Shipping is a flat ₹50 per order anywhere in Tamil Nadu, by ST Courier.
 Customers order on WhatsApp.
 
 The site is plain HTML, CSS and JavaScript. It has no server and no build step, so it runs directly on **GitHub Pages**.
@@ -35,10 +35,10 @@ The site is plain HTML, CSS and JavaScript. It has no server and no build step, 
 | Products, prices, sizes, sold out, photos | `js/products.js` |
 | Any website text (English / Tamil) | `js/i18n.js` |
 
-**Adding real product photos.** Upload your photos to the `images/products/` folder. Then add them to the product in `js/products.js`:
+**Adding real product photos.** Upload the photo to the `images/products/` folder. Then add it to the product in `js/products.js` (one photo per product):
 
 ```js
-images: ["images/products/readymade-jacket-1.jpg", "images/products/readymade-jacket-2.jpg"],
+images: ["images/products/readymade-jacket-1.jpg"],
 ```
 
 Until you add a photo, the site shows a drawn picture of the product.
@@ -47,7 +47,10 @@ The current photos of the readymade jacket, patiala, leggings, palazzo, burqa sh
 
 **YouTube.** The site is linked to your channel (`channelUrl` in `js/config.js`) and has a Subscribe button. The video box plays your channel's latest uploads automatically, so new videos appear on the site without any change. To feature specific videos instead, add their IDs to `videos` in `js/config.js`. The ID is the part after `v=` in the video link.
 
-**Regular prices and the ₹100 offer.**
+**Prices.** Set each product's `regularPrice` in `js/products.js` (for example `regularPrice: 250`).
+- A product without a price shows **"Price on WhatsApp"**. Customers can still add it to the cart. Its line in the WhatsApp order says "price to be confirmed", and the total is marked with "+" and a note about how many prices need confirming.
+
+**Offers (currently switched off).**
 - In `js/products.js`, set each product's `regularPrice` (for example `regularPrice: 250`). During the offer, the site shows ~~₹250~~ **₹100**, an "OFFER −60%" badge and "You save ₹150".
 - In `js/config.js`, the `offer` block controls the offer:
   - `active: true` runs the offer, and `active: false` switches every product back to its regular price.
